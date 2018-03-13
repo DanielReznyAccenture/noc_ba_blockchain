@@ -1,0 +1,50 @@
+namespace org.accenture.com.participant
+
+import org.accenture.com.asset.Animal
+
+/**
+ * A Farmer participant
+ */
+abstract participant User identified by email{
+  o String email
+  o String firstName optional
+  o String lastName optional
+}
+abstract participant Business identified by businessId extends User{
+  o String businessId
+  o String address1
+  o String address2
+  o String county
+  o String postcode
+  o Animal [] incomingAnimals optional
+}
+
+/**
+ * A Farmer participant
+ */
+participant Farmer extends Business {
+
+}
+
+/**
+ * A Butchery participant
+ */
+participant Butchery  extends Business {
+    o String Name
+}
+
+/**
+ * A Producer participant
+ */
+participant Producer extends Business {
+    o String plantLocation
+}
+
+/**
+ * A Regulator participant
+ */
+participant Regulator identified by authority extends User{
+  o String authority
+}
+
+transaction SetupParticipants{}

@@ -1,0 +1,150 @@
+namespace org.accenture.com.asset
+
+import org.accenture.com.participant.*
+
+enum AnimalType {
+  o BEEF
+  o CATTLE
+  o PIG
+  o DEER_OTHER
+}
+
+/**
+ * The types of products that could be moved
+ */
+enum ProductType {
+  o MEAT
+  o LEATHER
+  o BONES
+}
+
+/**
+ * The movement status for an animal
+ */
+enum MovementStatus {
+  o IN_FIELD
+  o IN_TRANSIT
+  o AT_BUTCHER
+  o AT_SHOP
+}
+
+/**
+ * The production type associated with a product
+ */
+
+concept AnimalProperty {
+    o Integer weight
+    o AnimalType species
+    o MovementStatus movementStatus
+    o String dateOfBirth
+}
+
+abstract asset Goods identified by identifier{
+  o String identifier 
+  --> Business owner
+}
+/**
+ * A Field asset. A Field is related to a list of animals
+ */
+asset Field identified by cph {
+  o String cph
+  o String name
+}
+
+/**
+ * An Animal asset, which is related to a Field
+ */
+asset Animal extends Goods{
+  --> Field origin
+  --> Field location optional
+   o AnimalProperty animalProperty
+  
+}
+
+/**
+ * A KilledAnimal asset, which is related to a Field
+ */
+asset KilledAnimal extends Goods {
+    o AnimalProperty animalProperty
+    --> Animal animal
+}
+
+/**
+ * A Product asset
+ */
+asset RawMaterial extends Goods {
+    o ProductType productType
+    o MovementStatus movementStatus
+    --> Butchery createdBy
+}
+
+asset Product extends Goods{
+    o ProductType productType
+    o MovementStatus movementStatus
+    --> Producer manufacturer
+}
+
+/**
+ * A Business asset which is owned by a Farmer, is related to a list of fields
+ * and has a list of incoming animals.
+ */
+
+/**
+ * An abstract transaction type for animal movements
+ */
+abstract transaction AnimalMovement {
+  o String[] logs optional
+  o DateTime dateOfMove
+    --> Animal animal
+    --> Business from
+    --> Business to
+}
+
+abstract transaction MeatMovement {
+  o String[] logs optional
+  o DateTime dateOfMove
+    --> RawMaterial rawMaterial
+    --> Business from
+    --> Business to
+}
+
+/**
+ * A transaction type for an animal leaving a farm
+ */
+transaction AnimalMovementDeparture extends AnimalMovement {
+  --> Field fromField
+}
+
+/**
+ * A transaction type for an animal arriving at a field
+ */
+transaction AnimalMovementArrival extends AnimalMovement {
+  --> Field arrivalField
+}
+
+transaction SetupAssets  {
+}
+
+transaction SellGoodsToNewOwner{
+  o  DateTime timeSold 
+  --> Goods element
+  --> Business newOwner
+}
+
+transaction KillAnimal{
+  o  DateTime timeSlaughtered 
+  --> Animal animal
+  --> Butchery butchery
+}
+
+transaction CreateRawMaterial{
+  --> KilledAnimal killedAnimal
+  --> Butchery butchery
+  o ProductType productType
+}
+
+transaction createProducedGoods{
+  --> RawMaterial rawMaterial
+  --> Producer producer
+}
+
